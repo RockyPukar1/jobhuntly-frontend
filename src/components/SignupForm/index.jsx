@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 
+import { useSelector, useDispatch } from "react-redux";
+import { signup } from "features/user/userSlice";
 import { Button, Img, Input, Line, Text } from "components";
-import api from "api/config";
+import { useNavigate } from "react-router-dom";
 
 const SignupForm = ({
   className,
@@ -18,19 +20,22 @@ const SignupForm = ({
   login,
   byclickingcontiOne,
 }) => {
-  const [status, setStatus] = useState("applicant");
+  const user = useSelector((state) => state.user.user);
+
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [status, setStatus] = useState("applicant");
 
-  const handleSubmit = () => {
-    api
-      .post("/user/register", { fullName, email, password, status })
-      .then((response) => {
-        if (response.data.success) window.location.replace("/dashboardapplicant");
-        else alert("Failed to register account!");
-      });
-  };
+  const dispatch = useDispatch();
+  const navigate = useNavigate()
+  
+  console.log(user)
+  if (user && user.status) {
+    user.status === "applicant"
+      ? navigate("/dashboardapplicant")
+      : navigate("/dashboardcompany");
+  }
 
   return (
     <div className={className}>
@@ -159,7 +164,9 @@ const SignupForm = ({
           color="indigo_A700"
           size="xl"
           variant="fill"
-          onClick={handleSubmit}
+          onClick={() =>
+            dispatch(signup({ fullName, email, password, status }))
+          }
         >
           {continued}
         </Button>
